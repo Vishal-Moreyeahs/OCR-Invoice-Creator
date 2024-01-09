@@ -1,0 +1,17 @@
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\bin\Release\net6.0\OcrInvoice.Application.deps.json
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\bin\Release\net6.0\OcrInvoice.Application.runtimeconfig.json
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\bin\Release\net6.0\OcrInvoice.Application.dll
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\bin\Release\net6.0\OcrInvoice.Application.pdb
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\bin\Release\net6.0\OcrInvoice.Domain.dll
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\bin\Release\net6.0\OcrInvoice.Domain.pdb
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.csproj.AssemblyReference.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.AssemblyInfoInputs.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.AssemblyInfo.cs
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.csproj.CoreCompileInputs.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.csproj.CopyComplete
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.dll
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\refint\OcrInvoice.Application.dll
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.pdb
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\OcrInvoice.Application.genruntimeconfig.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Application\obj\Release\net6.0\ref\OcrInvoice.Application.dll

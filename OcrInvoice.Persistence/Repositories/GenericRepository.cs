@@ -10,41 +10,101 @@ namespace OcrInvoice.Persistence.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
-        private readonly DataBaseContext _dbContext;
+        private readonly DataBaseContext _context;
+        private readonly DbSet<T> dbSet;
 
-        public GenericRepository(DataBaseContext context)
+        public GenericRepository(
+            DataBaseContext context
+        )
         {
-            _dbContext = context;
+            _context = context;
+            this.dbSet = _context.Set<T>();
         }
 
-        public async Task<T> Add(T entity)
+        public virtual async Task<IEnumerable<T>> GetAll()
         {
-            await _dbContext.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
-            return entity;
+            return await dbSet.ToListAsync();
         }
 
-        public async Task Delete(T entity)
+        public virtual async Task<T> GetById(int id)
         {
-            _dbContext.Set<T>().Remove(entity);
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                return await dbSet.FindAsync(id);
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
 
-        public async Task<T> Get(int id)
+        public virtual async Task<bool> Add(T entity)
         {
-            return await _dbContext.Set<T>().FindAsync(id);
+            try
+            {
+                await dbSet.AddAsync(entity);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
-        public async Task<IEnumerable<T>> GetAll()
+        public virtual async Task<bool> AddRange(IEnumerable<T> entities)
         {
-            return await _dbContext.Set<T>().ToListAsync();
+            try
+            {
+                await dbSet.AddRangeAsync(entities);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
-        public async Task Update(T entity)
+
+        public virtual async Task<bool> Delete(int id)
         {
-            _dbContext.Entry(entity).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                var entity = await dbSet.FindAsync(id);
+                if (entity != null)
+                {
+                    dbSet.Remove(entity);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
+
+        public virtual async Task<bool> Upsert(T entity)
+        {
+            try
+            {
+                if (entity != null)
+                {
+                    dbSet.Update(entity);
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
     }
 }

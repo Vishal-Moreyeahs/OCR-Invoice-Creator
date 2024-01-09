@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "bzfYoyqkpwaUcQsGRSpbUkCS07LjPI4AY2toK9QocqM=",
+  "Source": "OcrInvoice.Api",
+  "BasePath": "_content/OcrInvoice.Api",
+  "Mode": "Default",
+  "ManifestType": "Publish",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

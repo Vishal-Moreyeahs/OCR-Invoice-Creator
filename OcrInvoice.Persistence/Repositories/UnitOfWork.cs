@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace OcrInvoice.Persistence.Repositories
 {
-    
+
     public class UnitOfWork : IUnitOfWork
     {
         private readonly DataBaseContext _dbContext;
@@ -21,6 +21,11 @@ namespace OcrInvoice.Persistence.Repositories
         public async Task<int> Save()
         {
             return await _dbContext.SaveChangesAsync();
+        }
+
+        public IGenericRepository<T> GetRepository<T>() where T : class
+        {
+            return new GenericRepository<T>(_dbContext);
         }
     }
 }

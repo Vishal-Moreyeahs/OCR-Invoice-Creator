@@ -1,0 +1,14 @@
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\bin\Release\net6.0\OcrInvoice.Domain.deps.json
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\bin\Release\net6.0\OcrInvoice.Domain.runtimeconfig.json
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\bin\Release\net6.0\OcrInvoice.Domain.dll
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\bin\Release\net6.0\OcrInvoice.Domain.pdb
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.csproj.AssemblyReference.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.AssemblyInfoInputs.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.AssemblyInfo.cs
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.csproj.CoreCompileInputs.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.dll
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\refint\OcrInvoice.Domain.dll
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.pdb
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\OcrInvoice.Domain.genruntimeconfig.cache
+C:\Users\user\OCR-Invoice-Creator\OcrInvoice.Domain\obj\Release\net6.0\ref\OcrInvoice.Domain.dll
