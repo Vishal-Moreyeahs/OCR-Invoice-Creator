@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace OcrInvoice.Application.Models
 {
@@ -34,6 +28,15 @@ namespace OcrInvoice.Application.Models
         [JsonPropertyName("receiver_gst_number")]
         public string? ReceiverGSTNumber { get; set; }
 
+        [JsonPropertyName("sender_address_cityname")]
+        public string? SenderCity { get; set; }
+
+        [JsonPropertyName("sender_address_countryname")]
+        public string? SenderCountry { get; set; }
+
+        [JsonPropertyName("sender_address_zipcode")]
+        public string? SenderZipCode { get; set; }
+
         [JsonPropertyName("invoice_number")]
         public string? InvoiceNumber { get; set; }
 
@@ -44,7 +47,25 @@ namespace OcrInvoice.Application.Models
         public string? InvoiceCategory { get; set; }
 
         [JsonPropertyName("total_amount")]
-        public double? TotalAmount { get; set; }
+        public string? TotalAmount { get; set; }
+
+        [JsonPropertyName("cgst")]
+        public string? CGST { get; set; }
+
+        [JsonPropertyName("sgst")]
+        public string? SGST { get; set; }
+
+        [JsonPropertyName("gst")]
+        public string? GST { get; set; }
+
+        [JsonPropertyName("cgst%")]
+        public string? CgstPercentage { get; set; }
+
+        [JsonPropertyName("sgst%")]
+        public string? SgstPercentage { get; set; }
+
+        [JsonPropertyName("gst%")]
+        public string? GstPercentage { get; set; }
 
         [JsonPropertyName("clarity_percentage")]
         public string? OcrPercentage { get; set; }
@@ -59,12 +80,12 @@ namespace OcrInvoice.Application.Models
         public int? ItemQuantity { get; set; }
 
         [JsonPropertyName("item_rate")]
-        public double? ItemRate { get; set; }
+        public string? ItemRate { get; set; }
 
         [JsonPropertyName("item_tax")]
-        public double? ItemTax { get; set; }
+        public string? ItemTax { get; set; }
 
         [JsonPropertyName("item_amount")]
-        public double? ItemAmount { get; set; }
+        public string? ItemAmount { get; set; }
     }
 }

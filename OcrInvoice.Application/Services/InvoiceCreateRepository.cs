@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using OcrInvoice.Application.Contracts.Persistence;
 using OcrInvoice.Application.Contracts.Respository;
@@ -15,37 +16,41 @@ namespace OcrInvoice.Application.Services
     public class InvoiceCreateRepository : IInvoiceCreateRepository
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
-        public InvoiceCreateRepository(IUnitOfWork unitOfWork)
+        public InvoiceCreateRepository(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<ApiResponse<dynamic>> CreateInvoice(InvoiceOcrRequest invoice)
         {
-
             var lineItemMasters = new List<LineItemMaster>();
             if (invoice == null || invoice.Worksheet1.Count == 0 || invoice.Worksheet2.Count == 0)
             {
                 throw new ApplicationException($"Request Body is incorrect");
             }
             var data = invoice.Worksheet1.FirstOrDefault();
-            var customer = new Customer
-            {
-                Name = data.ReceiverName,
-                Address = data.ReceiverAddress,
-                TaxId = data.ReceiverGSTNumber
-            };
-            var invoiceMaster = new InvoiceMaster
-            {
-                InvoiceNumber = data.InvoiceNumber,
-                Date = DateTime.Parse(data.InvoiceDate),
-                Address = data.SenderAddress,
-                ProviderName = data.SenderName,
-                TaxId = data.SenderGSTNumber,
-                Total = data.TotalAmount,
-                OcrPercentage = data.OcrPercentage
-            };
+            
+            var customer = _mapper.Map<Customer>(data);
+            //var customer = new Customer
+            //{
+            //    Name = data.ReceiverName,
+            //    Address = data.ReceiverAddress,
+            //    TaxId = data.ReceiverGSTNumber
+            //};
+            var invoiceMaster = _mapper.Map<InvoiceMaster>(data);
+            //var invoicemaster = new invoicemaster
+            //{
+            //    invoicenumber = data.invoicenumber,
+            //    date = datetime.parse(data.invoicedate),
+            //    address = data.senderaddress,
+            //    providername = data.sendername,
+            //    taxid = data.sendergstnumber,
+            //    total = data.totalamount,
+            //    ocrpercentage = data.ocrpercentage
+            //};
 
             var isCustomerAdded = await _unitOfWork.GetRepository<Customer>().Add(customer);
             var isInvoiceMasterAdded = await _unitOfWork.GetRepository<InvoiceMaster>().Add(invoiceMaster);
@@ -58,10 +63,10 @@ namespace OcrInvoice.Application.Services
                     lineItemMasters.Add(new LineItemMaster
                     {
                         ItemName = item.ItemName,
-                        Price = item.ItemRate,
+                        Price = Convert.ToDouble(item.ItemRate),
                         InvoiceID = invoiceMaster.InvoiceID,
                         Qty = item.ItemQuantity,
-                        Tax = item.ItemTax
+                        Tax = Convert.ToDouble(item.ItemRate)
                     });
                 }
                 var isLineItemsAdded = await _unitOfWork.GetRepository<LineItemMaster>().AddRange(lineItemMasters);

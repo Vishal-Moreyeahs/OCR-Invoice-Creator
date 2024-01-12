@@ -22,9 +22,13 @@ namespace OcrInvoice.Domain.Models
         public DateTime? Date { get; set; }
         public string? TaxId { get; set; }
         public double? Total { get; set; }
-        public string? Tax1 { get; set; }
-        public string? Tax2 { get; set; }
-        public string? Tax3 { get; set; }
+        public double? CGST { get; set; }
+        public double? SGST { get; set; }
+        public double? GST { get; set; }
+        public double? CgstPercentage { get; set; }
+        public double? SgstPercentage { get; set; }
+        public double? GstPercentage { get; set; }
+
         public string? ImageUrl { get; set; }
         public string? OcrPercentage { get; set; }
     }
