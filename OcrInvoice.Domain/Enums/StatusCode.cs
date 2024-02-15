@@ -10,6 +10,7 @@ namespace OcrInvoice.Domain.Enums
     {
         BadRequest = 400,
         Success = 200,
-        InternalServerError = 500
+        InternalServerError = 500,
+        NotFound = 404
     }
 }
