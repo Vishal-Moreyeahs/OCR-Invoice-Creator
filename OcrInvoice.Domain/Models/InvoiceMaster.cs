@@ -20,6 +20,8 @@ namespace OcrInvoice.Domain.Models
         public string? Country { get; set; }
         public string? ZipCode { get; set; }
         public DateTime? Date { get; set; }
+        public string? InvoiceCategory { get; set; }
+        public string? CategoryId { get; set; }
         public string? TaxId { get; set; }
         public double? Total { get; set; }
         public double? CGST { get; set; }
