@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace OcrInvoice.Domain.Enums
 {
-    public enum StatusCode
+    public enum InvoiceStatus
     {
-        BadRequest = 400,
-        Success = 200,
-        InternalServerError = 500
+        Pending ,
+        Approved,
+        Rejected
     }
 }

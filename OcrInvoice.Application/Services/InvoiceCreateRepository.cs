@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
+using Newtonsoft.Json.Linq;
 using OcrInvoice.Application.Contracts.Persistence;
 using OcrInvoice.Application.Contracts.Respository;
 using OcrInvoice.Application.Models;
@@ -17,11 +22,104 @@ namespace OcrInvoice.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public InvoiceCreateRepository(IUnitOfWork unitOfWork, IMapper mapper)
+        public InvoiceCreateRepository(IUnitOfWork unitOfWork, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        public async Task<ApiResponse<dynamic>> CreateAndUploadInvoice(InvoiceRequest invoice)
+        {
+            var jwtToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+
+            //if (jwtToken == null) {
+            //    throw new ApplicationException("Token Authentication Failed");
+            //}
+
+            //var user = ExtractDataFromToken(jwtToken);
+
+            InvoiceStatus status = InvoiceStatus.Pending;
+            
+
+            var invoiceMasterData = new InvoiceMaster
+            {
+                Date = invoice.ExpenseDate,
+                Title = invoice.Title,
+                ProviderName = invoice.MerchantName,
+                InvoiceNumber = invoice.BillNo,
+                Total = ConvertToDoubleOrDefault(invoice.TotalAmount),
+                OcrPercentage = invoice.OcrPercentage,
+                InvoiceCategory = invoice.CategoryName,
+                ProjectName = invoice.ProjectName,
+                TotalTaxes = ConvertToDoubleOrDefault(invoice.TotalTaxes),
+                ImageUrl = invoice.ImageUrl,
+                Status = status.ToString()
+            };
+
+            var isInvoiceMasterAdded = await _unitOfWork.GetRepository<InvoiceMaster>().Add(invoiceMasterData);
+            if (!isInvoiceMasterAdded)
+            {
+                throw new ApplicationException("Invoice not added");
+            }
+            await _unitOfWork.Save();
+            var lineItems = new List<LineItemMaster>();
+            if (invoice.Products != null && invoice.Products.Count > 0)
+            { 
+                foreach (var item in invoice.Products) {
+                    lineItems.Add(new LineItemMaster
+                    {
+                        InvoiceID = invoiceMasterData.InvoiceID,
+                        ItemName = item.ProductName,
+                        Price = ConvertToDoubleOrDefault(item.ProductAmount)
+                    });
+                }
+            }
+            var isLineItemsAdded = await _unitOfWork.GetRepository<LineItemMaster>().AddRange(lineItems);
+            if (!isLineItemsAdded)
+            {
+                throw new ApplicationException("Line Items or Product not added");
+            }
+            await _unitOfWork.Save();
+            var response = new ApiResponse<dynamic> {
+                StatusCode = 200,
+                Success = true,
+                Data = "Your Bill is Successfully Submitted"
+            };
+            return response;
+        }
+
+        public static double ConvertToDoubleOrDefault(string input)
+        {
+            if (double.TryParse(input, out double result))
+            {
+                return result;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+
+        public dynamic ExtractDataFromToken(string jwtToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = tokenHandler.ReadToken(jwtToken) as JwtSecurityToken;
+
+            dynamic tokenData = new System.Dynamic.ExpandoObject();
+
+            if (jwtSecurityToken != null)
+            {
+                foreach (Claim claim in jwtSecurityToken.Claims)
+                {
+                    ((IDictionary<string, object>)tokenData)[claim.Type] = claim.Value;
+                }
+            }
+
+            return tokenData;
         }
 
         public async Task<ApiResponse<dynamic>> CreateInvoice(InvoiceOcrRequest invoice)
@@ -89,8 +187,9 @@ namespace OcrInvoice.Application.Services
             {
                 throw new ApplicationException("Data can not added in database");
             }
-
         }
+
+
 
         public async Task<ApiResponse<dynamic>> UploadInvoiceWithInvoiceID(int invoiceId, IFormFile uploadInvoice)
         {
@@ -151,5 +250,93 @@ namespace OcrInvoice.Application.Services
 
             return fileUrl;
         }
+
+        public async Task<ApiResponse<dynamic>> GetAllInvoices()
+        {
+            var invoiceMasterData = await _unitOfWork.GetRepository<InvoiceMaster>().GetAll();
+
+            var responseData = new List<InvoiceResponse>();
+
+            foreach (var item in invoiceMasterData)
+            {
+                responseData.Add(new InvoiceResponse { 
+                    Id = item.InvoiceID,
+                    ImageUrl = item.ImageUrl,
+                    ExpenseDate = item.Date,
+                    Status = item.Status,
+                    BillNo = item.InvoiceNumber,
+                    CategoryName = item.InvoiceCategory,
+                    Comments = item.Comments,
+                    MerchantName = item.ProviderName,
+                    ProjectName = item.ProjectName,
+                    Title = item.Title,
+                    TotalAmount = item.Total.ToString(),
+                    TotalTaxes = item.TotalTaxes.ToString(),
+                    OcrPercentage = item.OcrPercentage
+                });
+            }
+
+            var response = new ApiResponse<dynamic> { 
+                StatusCode = 200,
+                Success = true,
+                Data = responseData
+            };
+
+            return response;
+        }
+
+        public async Task<ApiResponse<dynamic>> UploadInvoice(IFormFile invoiceFile)
+        {
+            if (invoiceFile == null || invoiceFile.Length == 0)
+            {
+                throw new ApplicationException("No file uploaded.");
+            }
+
+            // Read the file data into a byte array
+            byte[] photoData;
+            using (var memoryStream = new MemoryStream())
+            {
+                await invoiceFile.CopyToAsync(memoryStream);
+                photoData = memoryStream.ToArray();
+            }
+
+            var currentdirectory = Directory.GetCurrentDirectory().ToString();
+            var directoryPath = Path.Combine(currentdirectory, "StaticFiles");
+
+            // Check if the directory exists, and create it if it doesn't
+            if (!Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            var fileName = Path.Combine(directoryPath, string.Concat("invoice-", Path.GetRandomFileName()));
+
+            // Use FileStream to directly save the file
+            using (var fileStream = new FileStream(fileName, FileMode.Create))
+            {
+                await invoiceFile.CopyToAsync(fileStream);
+            }
+
+            string fileUrl = GenerateFileUrl(fileName);
+
+            var response = new ApiResponse<dynamic>
+            {
+                StatusCode = (int)StatusCode.Success,
+                Success = true,
+                Data = fileUrl
+            };
+            return response;
+        }
+
+        public Task<ApiResponse<dynamic>> DeleteInvoice(int invoiceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ApiResponse<dynamic>> GetInvoiceImageByInvoiceId(int invoiceId)
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
