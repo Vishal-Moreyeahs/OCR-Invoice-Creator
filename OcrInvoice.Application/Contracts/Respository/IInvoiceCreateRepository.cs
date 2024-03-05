@@ -20,6 +20,9 @@ namespace OcrInvoice.Application.Contracts.Respository
         Task<ApiResponse<dynamic>> GetAllInvoices();
         Task<ApiResponse<dynamic>> DeleteInvoice(int invoiceId);
 
+        Task<ApiResponse<dynamic>> EditInvoiceData(InvoiceResponse invoice);
         Task<ApiResponse<dynamic>> GetInvoiceImageByInvoiceId(int invoiceId);
+
+        Task<ApiResponse<dynamic>> UpdateStatusById(int invoiceId, string status);
     }
 }

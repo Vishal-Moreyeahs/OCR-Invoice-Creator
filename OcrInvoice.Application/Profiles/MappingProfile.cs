@@ -26,21 +26,60 @@ namespace OcrInvoice.Application.Profiles
                .ForMember(dest => dest.Name, act => act.MapFrom(src => src.ReceiverName))
                .ForMember(dest => dest.Address, act => act.MapFrom(src => src.ReceiverAddress))
                .ForMember(dest => dest.TaxId, act => act.MapFrom(src => src.ReceiverGSTNumber));
-        }
 
-        public double ConvertStringToDouble(string input)
-        {
-            double result;
+            CreateMap<InvoiceResponse, InvoiceMaster>()
+                .ForMember(dest =>
+                   dest.InvoiceID,
+                   opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest =>
+                   dest.Date,
+                   opt => opt.MapFrom(src => src.ExpenseDate))
+               .ForMember(dest =>
+                   dest.Title,
+                   opt => opt.MapFrom(src => src.Title))
+               .ForMember(dest =>
+                   dest.InvoiceNumber,
+                   opt => opt.MapFrom(src => src.BillNo))
+               .ForMember(dest =>
+                   dest.Total,
+                   opt => opt.MapFrom(src => src.TotalAmount))
+               .ForMember(dest =>
+                   dest.TotalTaxes,
+                   opt => opt.MapFrom(src => src.TotalTaxes))
+               .ForMember(dest =>
+                   dest.Comments,
+                   opt => opt.MapFrom(src => src.Comments))
+               .ForMember(dest =>
+                   dest.ProjectName,
+                   opt => opt.MapFrom(src => src.ProjectName))
+               .ForMember(dest =>
+                   dest.OcrPercentage,
+                   opt => opt.MapFrom(src => src.OcrPercentage))
+               .ForMember(dest =>
+                   dest.Status,
+                   opt => opt.MapFrom(src => src.Status))
+               .ForMember(dest =>
+                   dest.ProviderName,
+                   opt => opt.MapFrom(src => src.MerchantName))
+               .ForMember(dest =>
+                   dest.InvoiceCategory,
+                   opt => opt.MapFrom(src => src.CategoryName))
+               .ForMember(dest =>
+                   dest.Comments,
+                   opt => opt.MapFrom(src => src.Comments))
+               .ForMember(dest =>
+                   dest.UpdatedBy,
+                   opt => opt.MapFrom(src => src.UpdatedBy))
+               .ReverseMap();
 
-            // Try to parse the string to a double
-            if (Double.TryParse(input, out result))
-            {
-                return result;
-            }
-            else
-            {
-                return 0;
-            }
+            CreateMap<LineItemMaster, Product>()
+                .ForMember(dest =>
+                   dest.ProductName,
+                   opt => opt.MapFrom(src => src.ItemName))
+               .ForMember(dest =>
+                   dest.ProductAmount,
+                   opt => opt.MapFrom(src => src.Price))
+               .ReverseMap();
         }
     }
 }
