@@ -53,18 +53,32 @@ namespace OcrInvoice.Api.Controllers
             return Ok(await _invoiceCreateRepository.GetAllInvoices());
         }
 
-        //[HttpDelete]
-        //[Route("delete-invoice-by-id")]
-        //public async Task<IActionResult> DeleteInvoiceById(int invoiceId)
-        //{
-        //    return Ok(await _invoiceCreateRepository.DeleteInvoice(invoiceId));
-        //}
+        [HttpDelete]
+        [Route("delete-invoice-by-id")]
+        public async Task<IActionResult> DeleteInvoiceById(int invoiceId)
+        {
+            return Ok(await _invoiceCreateRepository.DeleteInvoice(invoiceId));
+        }
 
         [HttpGet]
-        [Route("get-invoice-image")]
+        [Route("get-invoice-by-id")]
         public async Task<IActionResult> GetInvoiceImage(int invoiceId)
         {
             return Ok(await _invoiceCreateRepository.GetInvoiceImageByInvoiceId(invoiceId));
+        }
+
+        [HttpGet]
+        [Route("update-invoice-status")]
+        public async Task<IActionResult> UpdateInvoiceStatus(int invoiceId, string status)
+        {
+            return Ok(await _invoiceCreateRepository.UpdateStatusById(invoiceId, status));
+        }
+
+        [HttpPost]
+        [Route("update-invoice")]
+        public async Task<IActionResult> EditInvoice([FromBody] InvoiceResponse invoice)
+        {
+            return Ok(await _invoiceCreateRepository.EditInvoiceData(invoice));
         }
     }
 }

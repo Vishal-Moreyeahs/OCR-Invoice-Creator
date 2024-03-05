@@ -11,7 +11,7 @@ namespace OcrInvoice.Application
         {
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
             services.AddTransient<IInvoiceCreateRepository, InvoiceCreateRepository>();
-
+  
             return services;
         }
     }

@@ -56,7 +56,9 @@ namespace OcrInvoice.Application.Services
                 ProjectName = invoice.ProjectName,
                 TotalTaxes = ConvertToDoubleOrDefault(invoice.TotalTaxes),
                 ImageUrl = invoice.ImageUrl,
-                Status = status.ToString()
+                Status = status.ToString(),
+                CreatedDate = DateTime.UtcNow,
+                UpdatedDate = DateTime.UtcNow
             };
 
             var isInvoiceMasterAdded = await _unitOfWork.GetRepository<InvoiceMaster>().Add(invoiceMasterData);
@@ -240,6 +242,7 @@ namespace OcrInvoice.Application.Services
             };
             return response;
         }
+
         private string GenerateFileUrl(string filePath)
         {
             // Convert file path to a URI
@@ -254,7 +257,7 @@ namespace OcrInvoice.Application.Services
         public async Task<ApiResponse<dynamic>> GetAllInvoices()
         {
             var invoiceMasterData = await _unitOfWork.GetRepository<InvoiceMaster>().GetAll();
-
+            invoiceMasterData = invoiceMasterData.OrderByDescending(x => x.UpdatedDate).ToList();
             var responseData = new List<InvoiceResponse>();
 
             foreach (var item in invoiceMasterData)
@@ -301,7 +304,7 @@ namespace OcrInvoice.Application.Services
             }
 
             var currentdirectory = Directory.GetCurrentDirectory().ToString();
-            var directoryPath = Path.Combine(currentdirectory, "StaticFiles");
+            var directoryPath = Path.Combine(currentdirectory, "Images");
 
             // Check if the directory exists, and create it if it doesn't
             if (!Directory.Exists(directoryPath))
@@ -309,15 +312,19 @@ namespace OcrInvoice.Application.Services
                 Directory.CreateDirectory(directoryPath);
             }
 
-            var fileName = Path.Combine(directoryPath, string.Concat("invoice-", Path.GetRandomFileName()));
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(invoiceFile.FileName);
+            var fileExtension = Path.GetExtension(invoiceFile.FileName);
+            var dateTimeString = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var fileName = $"{fileNameWithoutExtension}_{dateTimeString}{fileExtension}";
+            var path = Path.Combine(directoryPath, fileName);
 
             // Use FileStream to directly save the file
-            using (var fileStream = new FileStream(fileName, FileMode.Create))
+            using (var fileStream = new FileStream(path, FileMode.Create))
             {
                 await invoiceFile.CopyToAsync(fileStream);
             }
 
-            string fileUrl = GenerateFileUrl(fileName);
+            string fileUrl = string.Concat("Images","/",fileName);
 
             var response = new ApiResponse<dynamic>
             {
@@ -328,15 +335,114 @@ namespace OcrInvoice.Application.Services
             return response;
         }
 
-        public Task<ApiResponse<dynamic>> DeleteInvoice(int invoiceId)
+        public string GetCurrentUrl(HttpContext context)
         {
-            throw new NotImplementedException();
+            var request = context.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+
+            // Combine the base URL, path, and query string (if any) to get the complete URL
+            var fullUrl = $"{baseUrl}";
+
+            return fullUrl;
         }
 
-        public Task<ApiResponse<dynamic>> GetInvoiceImageByInvoiceId(int invoiceId)
+
+        public async Task<ApiResponse<dynamic>> DeleteInvoice(int invoiceId)
         {
-            throw new NotImplementedException();
+            var invoiceData = await _unitOfWork.GetRepository<InvoiceMaster>().GetById(invoiceId);
+            if (invoiceData == null)
+            {
+                throw new ApplicationException("invoice data not found");
+            }
+            var isDeleted = await _unitOfWork.GetRepository<InvoiceMaster>().Delete(invoiceId);
+            if (!isDeleted)
+            {
+                throw new ApplicationException("Data not deleted");
+            }
+            await _unitOfWork.Save();
+            var response = new ApiResponse<dynamic>
+            {
+                StatusCode = 200,
+                Success = true,
+                Data = "Invoice data deleted successfully"
+            };
+            return response;
         }
 
+        public async Task<ApiResponse<dynamic>> GetInvoiceImageByInvoiceId(int invoiceId)
+        {
+            var invoiceData = await _unitOfWork.GetRepository<InvoiceMaster>().GetById(invoiceId);
+
+            if (invoiceData == null)
+            {
+                throw new ApplicationException("Invoice data not found");
+            }
+
+            var lineItems = await _unitOfWork.GetRepository<LineItemMaster>().GetAll();
+            var lineItemsData = lineItems.Where(x => x.InvoiceID == invoiceData.InvoiceID).ToList();
+            var serializedData = _mapper.Map<List<Product>>(lineItemsData);
+            var data = _mapper.Map<InvoiceResponse>(invoiceData);
+            data.Products = serializedData;
+            var response = new ApiResponse<dynamic>
+            {
+                StatusCode = 200,
+                Success = true,
+                Data = data
+            };
+            return response;
+        }
+
+        public async Task<ApiResponse<dynamic>> EditInvoiceData(InvoiceResponse invoice)
+        {
+            var invoiceData = await _unitOfWork.GetRepository<InvoiceMaster>().GetById(invoice.Id);
+
+            _mapper.Map(invoice, invoiceData);
+            invoiceData.UpdatedDate = DateTime.UtcNow;
+            var isUpdated = await _unitOfWork.GetRepository<InvoiceMaster>().Upsert(invoiceData);
+            if (!isUpdated)
+            {
+                throw new ApplicationException("not updated");
+            }
+            await _unitOfWork.Save();
+            var response = new ApiResponse<dynamic>
+            {
+                StatusCode = 200,
+                Success = true,
+                Data = "Invoice Updated Successfully"
+            };
+            return response;
+        }
+
+        public async Task<ApiResponse<dynamic>> UpdateStatusById(int invoiceId, string status)
+        {
+            var invoiceData = await _unitOfWork.GetRepository<InvoiceMaster>().GetById(invoiceId);
+
+            if (string.IsNullOrEmpty(status))
+            {
+                throw new ApplicationException("Invalid Status");
+            }
+
+            if (invoiceData == null )
+            {
+                throw new ApplicationException("Invalid Invoice id");
+            }
+
+            invoiceData.Status = status;
+            invoiceData.UpdatedDate = DateTime.UtcNow;
+            var isUpdated = await _unitOfWork.GetRepository<InvoiceMaster>().Upsert(invoiceData);
+            if (!isUpdated)
+            {
+                throw new ApplicationException("not updated");
+            }
+            await _unitOfWork.Save();
+            var response = new ApiResponse<dynamic>
+            {
+                StatusCode = 200,
+                Success = true,
+                Data = "status updated successfully"
+            };
+            return response;
+
+        }
     }
 }

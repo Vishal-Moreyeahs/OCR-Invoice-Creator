@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection.Metadata.Ecma335;
 
 namespace OcrInvoice.Domain.Models
 {
@@ -38,5 +39,7 @@ namespace OcrInvoice.Domain.Models
         public string? Status { get; set;}
         public string? Comments { get; set; }
         public int? UpdatedBy { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get;set; }
     }
 }

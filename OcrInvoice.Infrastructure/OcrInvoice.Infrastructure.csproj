@@ -19,4 +19,8 @@
     <ProjectReference Include="..\OcrInvoice.Application\OcrInvoice.Application.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="InvoiceFiles\" />
+  </ItemGroup>
+
 </Project>
